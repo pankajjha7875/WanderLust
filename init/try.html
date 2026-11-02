@@ -1,0 +1,80 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wandurlust</title>
+</head>
+<body>  
+    <h3> Edit Your Listing</h3>
+
+   
+    <form action="POST" method="/listings/<%= listing._id %> ?_method=PUT">
+        
+        <div>
+            <label for="title">Title:</label>
+            <input 
+                value="<%= listing.title %>" 
+                name="listing[title]" 
+                type="text" 
+                required
+            />
+        </div>
+<br /><br />
+        <div>
+            <label for="description">Description:</label>
+            <textarea  
+                id="description" 
+                name="listing[description]" 
+                required
+            > <%= listing.Description %></textarea>
+        </div>
+<br /><br />
+        <div>
+            <label for="price">Price (₹):</label>
+            <input 
+             value="<%= listing.price %>" 
+                type="number" 
+                id="price" 
+                name="listing[price]" 
+                required
+            />
+        </div>
+<br /><br />
+        <div>
+            <label for="country">Country:</label>
+            <input 
+             value="<%= listing.Country %>" 
+                type="text" 
+                id="country" 
+                name="listing[country]" 
+                required
+            />
+        </div>
+<br /><br />
+        <div>
+            <label for="location">Location:</label>
+            <input 
+             value="<%= listing.Location %>" 
+                type="text" 
+                id="location" 
+                name="listing[location]"
+            />
+        </div>
+<br /><br />
+        <div>
+            <label for="image">Image URL:</label>
+            <input 
+             value="<%= listing.image %>" 
+                type="text" 
+                id="image" 
+                name="listing[image]"
+            />
+        </div>
+<br /><br />
+        <button >Edit</button>
+    </form>
+</body>
+</html>

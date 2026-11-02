@@ -1,0 +1,100 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+  .hero {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #fff;
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+      url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80")
+        center / cover no-repeat;
+  }
+  .hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .hero p { font-size: 1.2rem; max-width: 560px; margin-bottom: 1.5rem; }
+  .hero form { display: flex; gap: 0.5rem; width: 100%; max-width: 480px; }
+  .hero input {
+    flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 2rem; outline: none;
+  }
+  .hero button, .cta-btn {
+    background: #fe424d; color: #fff; border: none; border-radius: 2rem;
+    padding: 0.75rem 1.5rem; text-decoration: none; cursor: pointer;
+  }
+  .hero button:hover, .cta-btn:hover { background: #e03540; color: #fff; }
+
+  .section { max-width: 1100px; margin: 3rem auto; padding: 0 1rem; }
+  .section h2 { margin-bottom: 1.5rem; }
+
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .feature { text-align: center; padding: 1.5rem; border: 1px solid #eee; border-radius: 1rem; }
+  .feature .icon { font-size: 2rem; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+  .card-listing { border-radius: 1rem; overflow: hidden; border: 1px solid #eee; text-decoration: none; color: inherit; transition: transform 0.2s; }
+  .card-listing:hover { transform: translateY(-4px); }
+  .card-listing img { width: 100%; height: 180px; object-fit: cover; }
+  .card-listing .body { padding: 1rem; }
+</style>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Welcome to Wanderlust</h1>
+  <p>Discover unique stays, from cozy cabins to beachfront villas, and find your next getaway.</p>
+  <form action="/listings" method="GET">
+    <input type="text" name="q" placeholder="Search destinations..." />
+    <button type="submit">Search</button>
+  </form>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="features">
+    <div class="feature">
+      <div class="icon">🏝️</div>
+      <h5>Unique Places</h5>
+      <p>Handpicked stays around the world.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">💰</div>
+      <h5>Fair Prices</h5>
+      <p>Clear pricing with no surprises.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🏠</div>
+      <h5>Host Your Own</h5>
+      <p>List your property in a few clicks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Featured listings (pass `featured` from the route, optional) -->
+<% if (typeof featured !== "undefined" && featured.length) { %>
+  <section class="section">
+    <h2>Featured stays</h2>
+    <div class="cards">
+      <% for (let listing of featured) { %>
+        <a href="/listings/<%= listing._id %>" class="card-listing">
+          <% if (listing.image && listing.image.url) { %>
+            <img src="<%= listing.image.url %>" alt="<%= listing.title %>" />
+          <% } %>
+          <div class="body">
+            <h5><%= listing.title %></h5>
+            <p class="mb-0">&#8377;<%= Number(listing.price).toLocaleString("en-IN") %> / night</p>
+          </div>
+        </a>
+      <% } %>
+    </div>
+  </section>
+<% } %>
+
+<!-- Call to action -->
+<section class="section" style="text-align:center;">
+  <h2>Ready to explore?</h2>
+  <a href="/listings" class="cta-btn">See Hotles Now</a>
+  <a href="/listings/new" class="cta-btn" style="background:#222;margin-left:0.5rem;">Add Your Own Home</a>
+</section>
