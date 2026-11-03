@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -12,8 +14,8 @@ const Listing = require("./modals/Listing.js");
 const User = require("./modals/User.js");
 
 const app = express();
-const PORT = 8080;
-const MONGO_URL = "mongodb://127.0.0.1:27017/Wanderlust";
+const PORT = process.env.PORT || 8080;
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/Wanderlust";
 
 // ===== Database =====
 mongoose
@@ -42,7 +44,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
-    secret: "changeThisSecret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   })
@@ -273,6 +275,9 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
+
+// next is netfily frontend depoly 
+// and go to the render and host the backend 
 
 
 
