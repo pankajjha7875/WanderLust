@@ -1,13 +1,15 @@
 require("dotenv").config();
+console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
 
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const Booking = require("./modals/Booking.js");
 const Listing = require("./modals/Listing.js");
@@ -27,8 +29,21 @@ mongoose
 const wrapAsync = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 const isLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated()) return res.redirect("/login");
+  if (!req.user) return res.redirect("/login");
   next();
+};
+
+// Signs a JWT and stores it in an httpOnly cookie
+const issueToken = (res, user) => {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 };
 
 // ===== View engine =====
@@ -41,24 +56,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+app.use(cookieParser());
 
 // ===== Auth setup =====
 app.use(passport.initialize());
-app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
-// Makes currentUser available in every EJS template
-app.use((req, res, next) => {
+// Reads the JWT cookie on every request and sets req.user
+app.use(async (req, res, next) => {
+  req.user = null;
+  const token = req.cookies.token;
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(payload.id);
+    } catch (e) {
+      res.clearCookie("token"); // expired or tampered token
+    }
+  }
   res.locals.currentUser = req.user;
   next();
 });
@@ -74,11 +89,12 @@ app.get("/signup", (req, res) => {
 
 app.post(
   "/signup",
-  wrapAsync(async (req, res, next) => {
+  wrapAsync(async (req, res) => {
     try {
       const { username, email, password } = req.body;
       const user = await User.register(new User({ username, email }), password);
-      req.login(user, (err) => (err ? next(err) : res.redirect("/listings")));
+      issueToken(res, user);
+      res.redirect("/listings");
     } catch (e) {
       console.log("signup error:", e.message);
       res.redirect("/signup");
@@ -92,12 +108,16 @@ app.get("/login", (req, res) => {
 
 app.post(
   "/login",
-  passport.authenticate("local", { failureRedirect: "/login" }),
-  (req, res) => res.redirect("/listings")
+  passport.authenticate("local", { session: false, failureRedirect: "/login" }),
+  (req, res) => {
+    issueToken(res, req.user);
+    res.redirect("/listings");
+  }
 );
 
-app.get("/logout", (req, res, next) => {
-  req.logout((err) => (err ? next(err) : res.redirect("/listings")));
+app.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/listings");
 });
 
 // ===== Listing routes =====
@@ -275,7 +295,6 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
-
 // next is netfily frontend depoly 
 // and go to the render and host the backend 
 
