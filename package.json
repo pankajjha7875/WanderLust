@@ -32,10 +32,13 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pankajjha7875/WanderLust.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pankajjha7875/WanderLust/issues"
+  },
+  "homepage": "https://github.com/pankajjha7875/WanderLust#readme"
 }
-
-
-
-
-
