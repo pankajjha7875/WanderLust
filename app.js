@@ -122,7 +122,7 @@ app.get("/logout", (req, res) => {
 
 // ===== Listing routes =====
 app.get("/", (req, res) => {
-  res.render("listings/Home.ejs");
+  res.render("listings/home.ejs");
 });
 
 app.get(
@@ -287,10 +287,10 @@ app.delete(
 );
 
 // ===== Error handler =====
-app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).send("Something went wrong");
-});
+// app.use((err, req, res, next) => {
+//   console.log(err);
+//   res.status(500).send("Something went wrong");
+// });
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
